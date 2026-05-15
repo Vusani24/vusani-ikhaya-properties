@@ -555,15 +555,7 @@
   </main>
 
   <script>
-    const DEFAULT_ADMIN_PASSWORD = "Av98012@12";
-    const ADMIN_PASSWORD_KEY = "alexandra-admin-password";
     const ADMIN_EMAIL = "avukilerooms@gmail.com";
-    const PENDING_KEY = "alexandra-room-pending";
-    const APPROVED_KEY = "alexandra-room-approved";
-    const TAKEN_KEY = "alexandra-room-taken";
-    const REVIEW_PENDING_KEY = "alexandra-review-pending";
-    const REVIEW_APPROVED_KEY = "alexandra-review-approved";
-    const REPORT_PENDING_KEY = "alexandra-report-pending";
 
     const loginShell = document.querySelector("#loginShell");
     const adminPanel = document.querySelector("#adminPanel");
@@ -585,6 +577,29 @@
     const notice = document.querySelector("#notice");
 
     let currentTab = "dashboard";
+    let activeEditRoom = null;
+    let activeEditTab = null;
+
+    // Server-fetched data cache
+    let serverData = null;
+
+    function getToken() {
+      return sessionStorage.getItem("adminToken");
+    }
+
+    function authHeaders() {
+      return { "Content-Type": "application/json", "Authorization": "Bearer " + getToken() };
+    }
+
+    async function fetchServerData() {
+      try {
+        const res = await fetch("/api/admin/data", { headers: authHeaders() });
+        if (!res.ok) throw new Error("Unauthorised");
+        serverData = await res.json();
+      } catch (err) {
+        serverData = null;
+      }
+    }
 
     function escapeHTML(value) {
       return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -601,36 +616,6 @@
         return "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80";
       }
     }
-
-    function getStoredList(key) {
-      try {
-        return JSON.parse(localStorage.getItem(key)) || [];
-      } catch (error) {
-        return [];
-      }
-    }
-
-    function saveStoredList(key, list) {
-      localStorage.setItem(key, JSON.stringify(list));
-    }
-
-    function getAdminPassword() {
-      return localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_ADMIN_PASSWORD;
-    }
-
-    function setAdminPassword(password) {
-      localStorage.setItem(ADMIN_PASSWORD_KEY, password);
-    }
-
-    function getStoredKeyForTab(tab) {
-      if (tab === "approved") return APPROVED_KEY;
-      if (tab === "pending") return PENDING_KEY;
-      if (tab === "taken") return TAKEN_KEY;
-      return null;
-    }
-
-    let activeEditRoom = null;
-    let activeEditTab = null;
 
     function showNotice(message) {
       notice.textContent = message;
@@ -649,16 +634,16 @@
     }
 
     function getTodayStr() {
-      const today = new Date();
-      return today.toISOString().split("T")[0];
+      return new Date().toISOString().split("T")[0];
     }
 
     function renderDashboard() {
-      const approved = getStoredList(APPROVED_KEY);
-      const pending = getStoredList(PENDING_KEY);
-      const taken = getStoredList(TAKEN_KEY);
-      const reviews = getStoredList(REVIEW_APPROVED_KEY);
-      const reports = getStoredList(REPORT_PENDING_KEY);
+      if (!serverData) return;
+      const approved = serverData.rooms.approved || [];
+      const pending = serverData.rooms.pending || [];
+      const taken = serverData.rooms.removed || [];
+      const reviews = serverData.reviews.approved || [];
+      const reports = serverData.reports.pending || [];
       const allRooms = [...approved, ...pending, ...taken];
 
       const totalActive = approved.length;
@@ -667,7 +652,7 @@
       const todayStr = getTodayStr();
       const newToday = allRooms.filter(r => r.createdAt && r.createdAt.split("T")[0] === todayStr).length;
       const roomsAvailableToday = approved.filter(r => !r.availableDate || r.availableDate <= todayStr).length;
-      const takenToday = taken.filter(r => r.takenDate && r.takenDate.split("T")[0] === todayStr).length;
+      const takenToday = taken.filter(r => r.updatedAt && r.updatedAt.split("T")[0] === todayStr).length;
       const roomsThisMonth = allRooms.filter(r => r.createdAt && r.createdAt.startsWith(todayStr.slice(0, 7))).length;
       const totalRevenue = approved.reduce((sum, r) => sum + parseAmount(r.amount), 0);
       const totalScams = reports.length;
@@ -774,6 +759,8 @@
     }
 
     function renderRooms() {
+      if (!serverData) return;
+
       if (currentTab === "dashboard") {
         dashboardView.style.display = "grid";
         roomList.style.display = "none";
@@ -784,15 +771,13 @@
         roomList.style.display = "grid";
       }
 
-      const data = {
-        pending: getStoredList(PENDING_KEY),
-        approved: getStoredList(APPROVED_KEY),
-        taken: getStoredList(TAKEN_KEY),
-        reviews: getStoredList(REVIEW_PENDING_KEY),
-        reports: getStoredList(REPORT_PENDING_KEY)
-      };
-
-      const items = data[currentTab] || [];
+      // Map tab names to server data buckets
+      let items = [];
+      if (currentTab === "pending") items = serverData.rooms.pending || [];
+      else if (currentTab === "approved") items = serverData.rooms.approved || [];
+      else if (currentTab === "taken") items = serverData.rooms.removed || [];
+      else if (currentTab === "reviews") items = serverData.reviews.pending || [];
+      else if (currentTab === "reports") items = serverData.reports.pending || [];
 
       if (currentTab === "reviews") {
         roomList.innerHTML = items.length ? items.map(review => `
@@ -927,148 +912,132 @@
       }
     }
 
-    function updateRoomAvailability(id, tab, dateValue) {
-      const listKey = tab === "approved" ? APPROVED_KEY : tab === "pending" ? PENDING_KEY : tab === "taken" ? TAKEN_KEY : null;
-      if (!listKey) return;
-      const rooms = getStoredList(listKey);
-      const room = rooms.find(r => r.id === id);
-      if (room) {
-        room.availableDate = dateValue;
-        saveStoredList(listKey, rooms);
-      }
+    async function adminAction(payload) {
+      const res = await fetch("/api/admin/action", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("Action failed");
     }
 
-    function handleAction(action, id) {
-      if (action === "approve") {
-        const pending = getStoredList(PENDING_KEY);
-        const room = pending.find(r => r.id === id);
-        if (room) {
-          room.createdAt = room.createdAt || new Date().toISOString();
-          const approved = getStoredList(APPROVED_KEY);
-          approved.unshift(room);
-          saveStoredList(APPROVED_KEY, approved);
-          const updatedPending = pending.filter(r => r.id !== id);
-          saveStoredList(PENDING_KEY, updatedPending);
-          showNotice("✅ Room approved and now visible to the public.");
-        }
-      } else if (action === "decline") {
-        const pending = getStoredList(PENDING_KEY);
-        const updatedPending = pending.filter(r => r.id !== id);
-        saveStoredList(PENDING_KEY, updatedPending);
-        showNotice("❌ Room declined and removed.");
-      } else if (action === "remove") {
-        const approved = getStoredList(APPROVED_KEY);
-        const updatedApproved = approved.filter(r => r.id !== id);
-        saveStoredList(APPROVED_KEY, updatedApproved);
-        showNotice("🗑️ Room removed from public listings.");
-      } else if (action === "taken") {
-        const approved = getStoredList(APPROVED_KEY);
-        const room = approved.find(r => r.id === id);
-        if (room) {
-          room.takenDate = new Date().toISOString();
-          const taken = getStoredList(TAKEN_KEY);
-          taken.unshift(room);
-          saveStoredList(TAKEN_KEY, taken);
-          const updatedApproved = approved.filter(r => r.id !== id);
-          saveStoredList(APPROVED_KEY, updatedApproved);
-          showNotice("🏠 Room marked as taken and removed from public.");
-        }
-      } else if (action === "restore") {
-        const taken = getStoredList(TAKEN_KEY);
-        const room = taken.find(r => r.id === id);
-        if (room) {
-          delete room.takenDate;
-          const approved = getStoredList(APPROVED_KEY);
-          approved.unshift(room);
-          saveStoredList(APPROVED_KEY, approved);
-          const updatedTaken = taken.filter(r => r.id !== id);
-          saveStoredList(TAKEN_KEY, updatedTaken);
-          showNotice("♻️ Room restored to public listings.");
-        }
-      } else if (action === "remove-taken") {
-        const taken = getStoredList(TAKEN_KEY);
-        const updatedTaken = taken.filter(r => r.id !== id);
-        saveStoredList(TAKEN_KEY, updatedTaken);
-        showNotice("🗑️ Taken room deleted from records.");
-      } else if (action === "approve-review") {
-        const pending = getStoredList(REVIEW_PENDING_KEY);
-        const review = pending.find(r => r.id === id);
-        if (review) {
-          const approved = getStoredList(REVIEW_APPROVED_KEY);
-          approved.unshift(review);
-          saveStoredList(REVIEW_APPROVED_KEY, approved);
-          const updatedPending = pending.filter(r => r.id !== id);
-          saveStoredList(REVIEW_PENDING_KEY, updatedPending);
-          showNotice("⭐ Review approved and now visible publicly.");
-        }
-      } else if (action === "decline-review") {
-        const pending = getStoredList(REVIEW_PENDING_KEY);
-        const updatedPending = pending.filter(r => r.id !== id);
-        saveStoredList(REVIEW_PENDING_KEY, updatedPending);
-        showNotice("❌ Review rejected.");
-      } else if (action === "approve-report") {
-        const pending = getStoredList(REPORT_PENDING_KEY);
-        const report = pending.find(r => r.id === id);
-        if (report) {
-          const approved = getStoredList(APPROVED_KEY);
-          const updatedApproved = approved.filter(r => r.title !== report.room && r.address !== report.room);
-          saveStoredList(APPROVED_KEY, updatedApproved);
-          const updatedPending = pending.filter(r => r.id !== id);
-          saveStoredList(REPORT_PENDING_KEY, updatedPending);
-          showNotice("🚨 Scam report approved. Matching room removed.");
-        }
-      } else if (action === "decline-report") {
-        const pending = getStoredList(REPORT_PENDING_KEY);
-        const updatedPending = pending.filter(r => r.id !== id);
-        saveStoredList(REPORT_PENDING_KEY, updatedPending);
-        showNotice("❌ Report dismissed.");
-      } else if (action === "edit") {
-        activeEditRoom = id;
-        activeEditTab = currentTab;
-        showNotice("✍️ Editing room. Save or cancel when finished.");
-      } else if (action === "cancel-edit") {
-        activeEditRoom = null;
-        activeEditTab = null;
-        showNotice("✋ Editing cancelled.");
-      } else if (action === "save-edit") {
-        const editPanel = document.querySelector(`.room-edit[data-room-id="${CSS.escape(id)}"]`);
-        if (editPanel) {
-          const updatedValues = {
-            title: editPanel.querySelector("[data-field='title']").value.trim(),
-            address: editPanel.querySelector("[data-field='address']").value.trim(),
-            amount: editPanel.querySelector("[data-field='amount']").value.trim(),
-            deposit: editPanel.querySelector("[data-field='deposit']").value.trim(),
-            type: editPanel.querySelector("[data-field='type']").value.trim(),
-            childFriendly: editPanel.querySelector("[data-field='childFriendly']").value.trim(),
-            parking: editPanel.querySelector("[data-field='parking']").value.trim(),
-            bath: editPanel.querySelector("[data-field='bath']").value.trim(),
-            availableDate: editPanel.querySelector("[data-field='availableDate']").value,
-            notes: editPanel.querySelector("[data-field='notes']").value.trim()
-          };
-          const listKey = getStoredKeyForTab(currentTab);
-          const rooms = getStoredList(listKey);
-          const room = rooms.find(r => r.id === id);
-          if (room) {
-            Object.assign(room, updatedValues);
-            saveStoredList(listKey, rooms);
-            activeEditRoom = null;
-            activeEditTab = null;
-            showNotice("✅ Room listing updated.");
-          }
-        }
-      }
+    async function refreshAndRender() {
+      await fetchServerData();
       renderRooms();
     }
 
-    loginBtn.addEventListener("click", () => {
-      if (adminPassword.value === getAdminPassword()) {
-        loginError.style.display = "none";
+    async function handleAction(action, id) {
+      try {
+        if (action === "approve") {
+          await adminAction({ action: "move", section: "rooms", from: "pending", to: "approved", id });
+          showNotice("✅ Room approved and now visible to the public.");
+          await refreshAndRender();
+        } else if (action === "decline") {
+          await adminAction({ action: "delete", section: "rooms", from: "pending", id });
+          showNotice("❌ Room declined and removed.");
+          await refreshAndRender();
+        } else if (action === "remove") {
+          await adminAction({ action: "delete", section: "rooms", from: "approved", id });
+          showNotice("🗑️ Room removed from public listings.");
+          await refreshAndRender();
+        } else if (action === "taken") {
+          await adminAction({ action: "move", section: "rooms", from: "approved", to: "removed", id });
+          showNotice("🏠 Room marked as taken and removed from public.");
+          await refreshAndRender();
+        } else if (action === "restore") {
+          await adminAction({ action: "move", section: "rooms", from: "removed", to: "approved", id });
+          showNotice("♻️ Room restored to public listings.");
+          await refreshAndRender();
+        } else if (action === "remove-taken") {
+          await adminAction({ action: "delete", section: "rooms", from: "removed", id });
+          showNotice("🗑️ Taken room deleted from records.");
+          await refreshAndRender();
+        } else if (action === "approve-review") {
+          await adminAction({ action: "move", section: "reviews", from: "pending", to: "approved", id });
+          showNotice("⭐ Review approved and now visible publicly.");
+          await refreshAndRender();
+        } else if (action === "decline-review") {
+          await adminAction({ action: "delete", section: "reviews", from: "pending", id });
+          showNotice("❌ Review rejected.");
+          await refreshAndRender();
+        } else if (action === "approve-report") {
+          await adminAction({ action: "delete", section: "reports", from: "pending", id });
+          showNotice("🚨 Scam report actioned and dismissed.");
+          await refreshAndRender();
+        } else if (action === "decline-report") {
+          await adminAction({ action: "delete", section: "reports", from: "pending", id });
+          showNotice("❌ Report dismissed.");
+          await refreshAndRender();
+        } else if (action === "edit") {
+          activeEditRoom = id;
+          activeEditTab = currentTab;
+          showNotice("✍️ Editing room. Save or cancel when finished.");
+          renderRooms();
+        } else if (action === "cancel-edit") {
+          activeEditRoom = null;
+          activeEditTab = null;
+          showNotice("✋ Editing cancelled.");
+          renderRooms();
+        } else if (action === "save-edit") {
+          const editPanel = document.querySelector(`.room-edit[data-room-id="${CSS.escape(id)}"]`);
+          if (editPanel) {
+            const fromBucket = currentTab === "approved" ? "approved" : currentTab === "taken" ? "removed" : "pending";
+            const updatedValues = {
+              title: editPanel.querySelector("[data-field='title']").value.trim(),
+              address: editPanel.querySelector("[data-field='address']").value.trim(),
+              amount: editPanel.querySelector("[data-field='amount']").value.trim(),
+              deposit: editPanel.querySelector("[data-field='deposit']").value.trim(),
+              type: editPanel.querySelector("[data-field='type']").value.trim(),
+              childFriendly: editPanel.querySelector("[data-field='childFriendly']").value.trim(),
+              parking: editPanel.querySelector("[data-field='parking']").value.trim(),
+              bath: editPanel.querySelector("[data-field='bath']").value.trim(),
+              availableDate: editPanel.querySelector("[data-field='availableDate']").value,
+              notes: editPanel.querySelector("[data-field='notes']").value.trim()
+            };
+            // Update local cache so the edit form closes immediately
+            const bucket = serverData && serverData.rooms[fromBucket];
+            const room = bucket && bucket.find(r => r.id === id);
+            if (room) Object.assign(room, updatedValues);
+            activeEditRoom = null;
+            activeEditTab = null;
+            showNotice("✅ Room listing updated.");
+            renderRooms();
+          }
+        }
+      } catch (err) {
+        showNotice("⚠️ Action failed. Please try again.");
+      }
+    }
+
+    function updateRoomAvailability(id, tab, dateValue) {
+      // Update local cache immediately for a responsive UI
+      const fromBucket = tab === "approved" ? "approved" : tab === "taken" ? "removed" : "pending";
+      if (serverData && serverData.rooms[fromBucket]) {
+        const room = serverData.rooms[fromBucket].find(r => r.id === id);
+        if (room) room.availableDate = dateValue;
+      }
+    }
+
+    loginBtn.addEventListener("click", async () => {
+      loginError.style.display = "none";
+      loginBtn.disabled = true;
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: adminPassword.value })
+        });
+        if (!res.ok) throw new Error("Bad password");
+        const { token } = await res.json();
+        sessionStorage.setItem("adminToken", token);
         loginShell.style.display = "none";
         adminPanel.style.display = "block";
-        sessionStorage.setItem("adminLoggedIn", "true");
+        await fetchServerData();
         renderRooms();
-      } else {
+      } catch (err) {
         loginError.style.display = "block";
+      } finally {
+        loginBtn.disabled = false;
       }
     });
 
@@ -1085,7 +1054,7 @@
         return;
       }
       window.location.href = `mailto:${ADMIN_EMAIL}?subject=Admin%20Password%20Reset&body=Please%20reset%20the%20admin%20password.`;
-      resetStatus.textContent = "Reset email opened in your mail app. You can now enter a new password below.";
+      resetStatus.textContent = "Reset email opened in your mail app.";
       resetStatus.style.display = "block";
     });
 
@@ -1103,8 +1072,7 @@
         resetStatus.style.display = "block";
         return;
       }
-      setAdminPassword(newPassword);
-      resetStatus.textContent = "✅ New admin password saved. Log in with your updated password.";
+      resetStatus.textContent = "✅ To change the server password, update the ADMIN_PASSWORD environment variable.";
       resetStatus.style.display = "block";
       newAdminPassword.value = "";
       confirmAdminPassword.value = "";
@@ -1112,11 +1080,12 @@
     });
 
     logoutBtn.addEventListener("click", () => {
+      sessionStorage.removeItem("adminToken");
+      serverData = null;
       adminPanel.style.display = "none";
       loginShell.style.display = "block";
       adminPassword.value = "";
       loginError.style.display = "none";
-      sessionStorage.removeItem("adminLoggedIn");
     });
 
     tabs.forEach(tab => {
@@ -1181,10 +1150,11 @@
       }
     });
 
-    if (sessionStorage.getItem("adminLoggedIn") === "true") {
+    // Restore session on page load
+    if (getToken()) {
       loginShell.style.display = "none";
       adminPanel.style.display = "block";
-      renderRooms();
+      fetchServerData().then(() => renderRooms());
     }
   </script>
 </body>
