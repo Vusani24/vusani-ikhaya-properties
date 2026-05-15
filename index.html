@@ -233,7 +233,7 @@
 
     .filters {
       display: grid;
-      grid-template-columns: 1.5fr repeat(3, minmax(150px, .8fr));
+      grid-template-columns: 1.5fr repeat(4, minmax(150px, .8fr));
       gap: 12px;
       margin-bottom: 22px;
     }
@@ -406,6 +406,58 @@
       color: var(--brand-dark);
     }
 
+    .contact-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: all .15s ease;
+      border: none;
+      cursor: pointer;
+      font-size: inherit;
+      font: inherit;
+    }
+
+    .btn.contact-icon {
+      min-height: 44px;
+      padding: 8px 12px;
+    }
+
+    .contact-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+    }
+
+    .contact-call {
+      color: #fff;
+      background: #2E7D32;
+    }
+
+    .contact-call:hover {
+      background: #1b5e20;
+    }
+
+    .contact-whatsapp {
+      color: #fff;
+      background: #25D366;
+    }
+
+    .contact-whatsapp:hover {
+      background: #1da851;
+    }
+
+    .contact-email {
+      color: #fff;
+      background: #EA4335;
+    }
+
+    .contact-email:hover {
+      background: #c5221f;
+    }
+
     .post-band {
       background: #eef3ee;
     }
@@ -438,6 +490,58 @@
       margin: 0;
       color: var(--muted);
       line-height: 1.55;
+    }
+
+    .about-us {
+      background: linear-gradient(135deg, #f1faf5 0%, #e9f6f0 100%);
+    }
+
+    .about-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .about-content h2 {
+      margin-bottom: 16px;
+    }
+
+    .about-content p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .about-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-highlights {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .highlight-item {
+      display: flex;
+      align-items: start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .highlight-icon {
+      flex-shrink: 0;
+      font-size: 20px;
+      margin-top: 2px;
+    }
+
+    .highlight-text {
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.5;
     }
 
     .reviews {
@@ -695,6 +799,10 @@
       .info-grid {
         grid-template-columns: 1fr;
       }
+
+      .about-content {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 640px) {
@@ -777,6 +885,44 @@
       </div>
     </section>
 
+    <section class="about-us" aria-label="About Alexandra Rooms To Rent">
+      <div class="wrap about-content">
+        <div>
+          <h2>About Alexandra Rooms To Rent</h2>
+          <p>Alexandra Rooms To Rent is your trusted partner in finding quality accommodation in Alexandra. We connect room seekers with verified landlords offering a wide range of living spaces—from bachelor rooms to multi-bedroom units.</p>
+          <p>Our mission is to make room searching simple, transparent, and safe. Every listing on our platform is carefully reviewed to ensure quality and authenticity, protecting both landlords and tenants from scams and fraudulent activities.</p>
+        </div>
+        <div>
+          <div class="about-highlights">
+            <div class="highlight-item">
+              <span class="highlight-icon">✅</span>
+              <span class="highlight-text"><strong>Verified Listings</strong> — Admin reviews every room post before it appears to ensure quality and authenticity.</span>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-icon">🤝</span>
+              <span class="highlight-text"><strong>Direct Contact</strong> — Connect directly with landlords by call, WhatsApp, or email. No middlemen or hidden fees.</span>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-icon">💰</span>
+              <span class="highlight-text"><strong>Affordable & Fair</strong> — Only pay R150 when you take a room. Free to browse, free to post.</span>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-icon">🚨</span>
+              <span class="highlight-text"><strong>Scam Protection</strong> — Report suspicious listings. Our team investigates and removes fake posts to keep you safe.</span>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-icon">⭐</span>
+              <span class="highlight-text"><strong>Real Reviews</strong> — Read honest reviews from other room seekers. Help others by sharing your experience.</span>
+            </div>
+            <div class="highlight-item">
+              <span class="highlight-icon">🎁</span>
+              <span class="highlight-text"><strong>Earn Rewards</strong> — Refer a landlord and earn R20. Help us grow while making money.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="rooms">
       <div class="wrap">
         <div class="section-head">
@@ -785,15 +931,86 @@
             <p>Every listing can show up to five room pictures, the address, room type, bathroom details, parking, child-friendly status, rent, and deposit.</p>
           </div>
           <div class="contact-actions">
-            <a class="btn btn-secondary" href="tel:0613642449">Call 0613642449</a>
-            <a class="btn btn-primary" href="https://wa.me/27685353186" target="_blank" rel="noopener">WhatsApp 0685353186</a>
+            <a class="btn btn-secondary contact-icon contact-call" href="tel:0613642449">☎️ Call 0613642449</a>
+            <a class="btn btn-secondary contact-icon contact-email" href="mailto:avukilerooms@gmail.com">✉️ Email</a>
+            <a class="contact-icon contact-whatsapp" href="https://wa.me/27685353186" target="_blank" rel="noopener">💬 WhatsApp 0685353186</a>
           </div>
         </div>
 
         <div class="filters" aria-label="Room filters">
           <div class="field">
             <label for="search">Search address or type</label>
-            <input id="search" type="search" placeholder="Search by address or room type">
+            <input id="search" type="search" placeholder="Search by address or room type" list="locationSuggestions">
+            <datalist id="locationSuggestions">
+              <option value="1st Street"></option>
+              <option value="2nd Street"></option>
+              <option value="3rd Street"></option>
+              <option value="4th Street"></option>
+              <option value="5th Street"></option>
+              <option value="6th Street"></option>
+              <option value="7th Street"></option>
+              <option value="8th Street"></option>
+              <option value="9th Street"></option>
+              <option value="10th Street"></option>
+              <option value="11th Street"></option>
+              <option value="12th Street"></option>
+              <option value="13th Street"></option>
+              <option value="14th Street"></option>
+              <option value="15th Street"></option>
+              <option value="16th Street"></option>
+              <option value="17th Street"></option>
+              <option value="18th Street"></option>
+              <option value="19th Street"></option>
+              <option value="20th Street"></option>
+              <option value="21st Street"></option>
+              <option value="22nd Street"></option>
+              <option value="23rd Street"></option>
+              <option value="Alex Mall"></option>
+              <option value="Central Avenue"></option>
+              <option value="Town Road"></option>
+              <option value="Tsutsumane"></option>
+              <option value="Kwa-Bhekilanga"></option>
+              <option value="ext7"></option>
+              <option value="ext8"></option>
+              <option value="riverpark"></option>
+              <option value="Far East Bank"></option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="locationFilter">Alexandra street</label>
+            <select id="locationFilter">
+              <option value="all">All Alexandra streets</option>
+              <option value="1st Street">1st Street</option>
+              <option value="2nd Street">2nd Street</option>
+              <option value="3rd Street">3rd Street</option>
+              <option value="4th Street">4th Street</option>
+              <option value="5th Street">5th Street</option>
+              <option value="6th Street">6th Street</option>
+              <option value="7th Street">7th Street</option>
+              <option value="8th Street">8th Street</option>
+              <option value="9th Street">9th Street</option>
+              <option value="10th Street">10th Street</option>
+              <option value="11th Street">11th Street</option>
+              <option value="12th Street">12th Street</option>
+              <option value="13th Street">13th Street</option>
+              <option value="14th Street">14th Street</option>
+              <option value="15th Street">15th Street</option>
+              <option value="16th Street">16th Street</option>
+              <option value="17th Street">17th Street</option>
+              <option value="18th Street">18th Street</option>
+              <option value="19th Street">19th Street</option>
+              <option value="20th Street">20th Street</option>
+              <option value="21st Street">21st Street</option>
+              <option value="22nd Street">22nd Street</option>
+              <option value="23rd Street">23rd Street</option>
+              <option value="Alex Mall">Alex Mall</option>
+              <option value="Tsutsumane">Tsutsumane</option>
+              <option value="Kwa-Bhekilanga">Kwa-Bhekilanga</option>
+              <option value="ext7">ext7</option>
+              <option value="ext8">ext8</option>
+              <option value="riverpark">riverpark</option>
+              <option value="Far East Bank">Far East Bank</option>
+            </select>
           </div>
           <div class="field">
             <label for="typeFilter">Room type</label>
@@ -984,6 +1201,7 @@
   <script>
     const PUBLIC_CALL = "0613642449";
     const PUBLIC_WHATSAPP = "0685353186";
+    const PUBLIC_EMAIL = "avukilerooms@gmail.com";
     const ADMIN_CODE = "0613642449";
     const PENDING_KEY = "alexandra-room-pending";
     const APPROVED_KEY = "alexandra-room-approved";
@@ -1000,6 +1218,7 @@
     const errorMessage = document.querySelector("#errorMessage");
     const filters = {
       search: document.querySelector("#search"),
+      location: document.querySelector("#locationFilter"),
       type: document.querySelector("#typeFilter"),
       child: document.querySelector("#childFilter"),
       parking: document.querySelector("#parkingFilter")
@@ -1139,13 +1358,15 @@
 
     function filteredRooms() {
       const term = filters.search.value.trim().toLowerCase();
+      const locationFilter = filters.location.value;
       return getAllRooms().filter((room) => {
         const haystack = [room.title, room.address, room.type, room.bath].join(" ").toLowerCase();
         const matchesTerm = !term || haystack.includes(term);
+        const matchesLocation = locationFilter === "all" || room.address.toLowerCase().includes(locationFilter.toLowerCase());
         const matchesType = filters.type.value === "all" || room.type === filters.type.value;
         const matchesChild = filters.child.value === "all" || room.childFriendly === filters.child.value;
         const matchesParking = filters.parking.value === "all" || room.parking === filters.parking.value;
-        return matchesTerm && matchesType && matchesChild && matchesParking;
+        return matchesTerm && matchesLocation && matchesType && matchesChild && matchesParking;
       });
     }
 
@@ -1232,11 +1453,12 @@
             <p class="address">${escapeHTML(room.notes || "Contact us for more information.")}</p>
             <div class="card-actions">
               <button class="btn btn-secondary" type="button" data-contact="${room.id}">Request More Information</button>
-              <a class="btn btn-primary" href="https://wa.me/27${PUBLIC_WHATSAPP.slice(1)}?text=Hi%2C%20I%20want%20more%20information%20about%20${encodedTitle}" target="_blank" rel="noopener">WhatsApp</a>
+              <a class="btn btn-primary" href="https://wa.me/27${PUBLIC_WHATSAPP.slice(1)}?text=Hi%2C%20I%20want%20more%20information%20about%20${encodedTitle}" target="_blank" rel="noopener">💬 WhatsApp</a>
             </div>
             <div class="contact-panel" id="contact-${room.id}">
-              <div><strong>Call:</strong> <a href="tel:${PUBLIC_CALL}">${PUBLIC_CALL}</a></div>
-              <div><strong>WhatsApp:</strong> <a href="https://wa.me/27${PUBLIC_WHATSAPP.slice(1)}" target="_blank" rel="noopener">${PUBLIC_WHATSAPP}</a></div>
+              <a href="tel:${PUBLIC_CALL}" class="contact-icon contact-call">☎️ Call ${PUBLIC_CALL}</a>
+              <a href="https://wa.me/27${PUBLIC_WHATSAPP.slice(1)}" target="_blank" rel="noopener" class="contact-icon contact-whatsapp">💬 WhatsApp ${PUBLIC_WHATSAPP}</a>
+              <a href="mailto:${PUBLIC_EMAIL}?subject=Inquiry%20about%20${encodedTitle}" class="contact-icon contact-email">✉️ Email</a>
             </div>
             ${roomReviews(room)}
           </div>
