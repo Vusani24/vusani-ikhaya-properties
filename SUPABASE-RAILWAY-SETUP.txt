@@ -1,0 +1,29 @@
+Alexandra Rooms To Rent - Supabase + Railway Setup
+
+1. In Supabase, open your project.
+2. Go to SQL Editor.
+3. Open this file from the project:
+   database/supabase-schema.sql
+4. Copy all the SQL and run it in Supabase.
+
+5. In Supabase, go to Project Settings > API.
+6. Copy:
+   - Project URL
+   - service_role secret key
+
+7. In Railway, open your Alexandra Rooms To Rent project.
+8. Click your website service.
+9. Open the Variables tab.
+10. Add these variables:
+
+   ADMIN_PASSWORD=Av98012@12
+   SUPABASE_URL=your Supabase Project URL
+   SUPABASE_SERVICE_ROLE_KEY=your Supabase service_role secret key
+
+11. Deploy the staged changes or redeploy the service.
+
+Important:
+- Use the service_role key only inside Railway service variables.
+- Do not put the service_role key inside public HTML or JavaScript files.
+- The first time the server connects to Supabase, it will copy the current local database/db.json into Supabase if Supabase is empty.
+- Railway provides the PORT variable automatically. The server already uses it.
