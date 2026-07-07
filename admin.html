@@ -1,0 +1,1285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Portal | Alexandra Rooms To Rent</title>
+  <style>
+    :root {
+      --ink: #17201b;
+      --muted: #637268;
+      --paper: #edf4ee;
+      --panel: #fffffb;
+      --line: #cad8cf;
+      --brand: #0f7a5f;
+      --brand-dark: #095741;
+      --black: #101713;
+      --accent: #e5a638;
+      --danger: #b8493b;
+      --shadow: 0 18px 45px rgba(16, 32, 24, .12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #0f241c 0, #0f241c 190px, var(--paper) 190px);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      border-bottom: 1px solid rgba(255, 255, 255, .14);
+      background: var(--black);
+      color: #fff;
+    }
+
+    .topbar-inner,
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--brand);
+    }
+
+    main {
+      padding: 42px 0 72px;
+    }
+
+    .login-shell,
+    .panel,
+    .room-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .login-shell {
+      max-width: 460px;
+      margin: 48px auto;
+      padding: 24px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(34px, 5vw, 58px);
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #344139;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--brand);
+      outline: 3px solid rgba(15, 122, 95, .13);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 900;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--brand);
+    }
+
+    .btn-secondary {
+      color: var(--ink);
+      border-color: var(--line);
+      background: #fff;
+    }
+
+    .btn-danger {
+      color: #fff;
+      background: var(--danger);
+    }
+
+    .btn-warning {
+      color: #281900;
+      background: var(--accent);
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .error,
+    .notice {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    .error {
+      color: #7f2318;
+      background: #fde5df;
+    }
+
+    .notice {
+      color: #0d4c3a;
+      background: #dbf4e9;
+    }
+
+    .error.is-visible,
+    .notice.is-visible {
+      display: block;
+    }
+
+    .portal {
+      display: none;
+      gap: 22px;
+    }
+
+    .portal.is-visible {
+      display: grid;
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+      color: #fff;
+    }
+
+    .hero-row p {
+      color: rgba(255, 255, 255, .82);
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .tab.is-active {
+      color: #fff;
+      border-color: var(--brand);
+      background: var(--brand);
+    }
+
+    .room-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .room-card {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(20, 35, 27, .06);
+    }
+
+    .images {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      align-content: start;
+    }
+
+    .image-tile {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #eef3ee;
+    }
+
+    .image-tile img,
+    .image-tile video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0, 0, 0, .92);
+    }
+
+    .media-viewer.is-open {
+      display: flex;
+    }
+
+    .media-viewer img,
+    .media-viewer video {
+      max-width: 96vw;
+      max-height: 92vh;
+      border-radius: 8px;
+      background: #000;
+      object-fit: contain;
+    }
+
+    .media-close {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 51;
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 8px;
+      color: #fff;
+      background: rgba(255, 255, 255, .12);
+      cursor: pointer;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .image-remove {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      min-height: 30px;
+      padding: 5px 8px;
+      border: 0;
+      border-radius: 8px;
+      color: #fff;
+      background: rgba(184, 73, 59, .94);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .detail {
+      min-height: 48px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+      font-size: 13px;
+    }
+
+    .detail strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #344139;
+      font-size: 12px;
+    }
+
+    .monthly-chart {
+      grid-column: 1 / -1;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+    }
+
+    .monthly-chart strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #344139;
+      font-size: 12px;
+    }
+
+    .monthly-chart svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .monthly-chart .axis {
+      stroke: #d7ded8;
+      stroke-width: 1;
+    }
+
+    .monthly-chart .line {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .monthly-chart .point {
+      fill: #ffffff;
+      stroke: var(--green);
+      stroke-width: 2;
+    }
+
+    .monthly-chart text {
+      fill: #53625a;
+      font-size: 11px;
+    }
+
+    .monthly-chart .month-label {
+      font-size: 10px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .private {
+      padding: 12px;
+      border: 1px solid #cbe2d6;
+      border-radius: 8px;
+      background: #f1faf5;
+      color: var(--brand-dark);
+      font-weight: 800;
+    }
+
+    .empty {
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 820px) {
+      .hero-row,
+      .topbar-inner {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .room-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">AR</span>
+        <span>Alexandra Rooms Admin</span>
+      </a>
+      <a class="btn btn-secondary" href="index.html">View Public Site</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="login-shell" id="loginScreen">
+      <h1>Admin Login</h1>
+      <p>Log in to approve new room posts, decline posts, remove public rooms, and repost removed rooms.</p>
+      <div class="error" id="loginError">Incorrect admin password.</div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="adminPassword">Password</label>
+          <input id="adminPassword" type="password" autocomplete="current-password" required placeholder="Enter admin password">
+          <span class="hint">Use the admin password provided by Avukile Rooms.</span>
+        </div>
+        <button class="btn btn-primary" type="submit">Log In</button>
+      </form>
+    </section>
+
+    <section class="portal" id="portal">
+      <div class="hero-row">
+        <div>
+          <h1>Admin Portal</h1>
+          <p>Approve only the posts you want shown on the public website.</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="refreshAdminButton" type="button">Refresh Posts</button>
+          <button class="btn btn-secondary" id="logoutButton" type="button">Log Out</button>
+        </div>
+      </div>
+
+      <div class="notice" id="notice"></div>
+
+      <div class="tabs" aria-label="Admin sections">
+        <button class="btn tab is-active" type="button" data-view="pending">Pending</button>
+        <button class="btn tab" type="button" data-view="approved">Approved Public</button>
+        <button class="btn tab" type="button" data-view="taken">Taken</button>
+        <button class="btn tab" type="button" data-view="declined">Declined</button>
+        <button class="btn tab" type="button" data-view="removed">Removed</button>
+        <button class="btn tab" type="button" data-view="review-pending">Review Pending</button>
+        <button class="btn tab" type="button" data-view="review-approved">Review Approved</button>
+        <button class="btn tab" type="button" data-view="review-declined">Review Declined</button>
+        <button class="btn tab" type="button" data-view="report-pending">Scam Reports</button>
+        <button class="btn tab" type="button" data-view="report-approved">Reports Approved</button>
+        <button class="btn tab" type="button" data-view="report-declined">Reports Declined</button>
+        <button class="btn tab" type="button" data-view="transport-pending">Moving Transport Pending</button>
+        <button class="btn tab" type="button" data-view="transport-approved">Moving Transport Live</button>
+        <button class="btn tab" type="button" data-view="transport-declined">Moving Transport Declined</button>
+        <button class="btn tab" type="button" data-view="transport-removed">Moving Transport Removed</button>
+      </div>
+
+      <div class="room-list" id="roomList"></div>
+
+      <div class="panel">
+        <h2>Monthly Report</h2>
+        <div class="details" id="monthlyReport"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Receipt Section</h2>
+        <p class="hint">Create a manual receipt or select an approved room and issue a receipt from that room. Potential and monthly revenue are calculated from service fees only.</p>
+        <form id="receiptForm">
+          <input id="receiptRoomId" type="hidden">
+          <div class="field">
+            <label for="receiptDate">Date</label>
+            <input id="receiptDate" type="date" required>
+          </div>
+          <div class="field">
+            <label for="tenantName">Tenant name</label>
+            <input id="tenantName" required placeholder="Tenant name and surname">
+          </div>
+          <div class="field">
+            <label for="tenantNumber">Tenant number</label>
+            <input id="tenantNumber" required placeholder="Tenant phone number">
+          </div>
+          <div class="field">
+            <label for="receiptRoomAddress">Room address</label>
+            <input id="receiptRoomAddress" required placeholder="Room address">
+          </div>
+          <div class="field">
+            <label for="receiptRentAmount">Rent amount</label>
+            <input id="receiptRentAmount" required placeholder="Rent amount">
+          </div>
+          <div class="field">
+            <label for="receiptDepositAmount">Deposit amount</label>
+            <input id="receiptDepositAmount" placeholder="Deposit amount or no deposit">
+          </div>
+          <div class="field">
+            <label for="receiptPaymentType">Payment type</label>
+            <input id="receiptPaymentType" required placeholder="Cash, Cash Send, EFT, etc.">
+          </div>
+          <div class="field">
+            <label for="receiptServiceFee">Service fee charged</label>
+            <input id="receiptServiceFee" readonly>
+            <span class="hint" id="serviceFeeHint">Service fee is calculated from the rent amount.</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">Create Receipt</button>
+            <button class="btn btn-secondary" type="button" id="manualReceiptButton">Create Manual Receipt</button>
+            <button class="btn btn-secondary" type="button" id="clearReceiptButton">Clear</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div class="media-viewer" id="mediaViewer" aria-hidden="true">
+    <button class="media-close" id="mediaClose" type="button" aria-label="Close full screen media">×</button>
+    <div id="mediaContent"></div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = "Av98012@12";
+    const PENDING_KEY = "alexandra-room-pending";
+    const APPROVED_KEY = "alexandra-room-approved";
+    const TAKEN_KEY = "alexandra-room-taken";
+    const DECLINED_KEY = "alexandra-room-declined";
+    const REMOVED_KEY = "alexandra-room-removed";
+    const REVIEW_PENDING_KEY = "alexandra-review-pending";
+    const REVIEW_APPROVED_KEY = "alexandra-review-approved";
+    const REVIEW_DECLINED_KEY = "alexandra-review-declined";
+    const REPORT_PENDING_KEY = "alexandra-report-pending";
+    const REPORT_APPROVED_KEY = "alexandra-report-approved";
+    const REPORT_DECLINED_KEY = "alexandra-report-declined";
+    const TRANSPORT_PENDING_KEY = "alexandra-transport-pending";
+    const TRANSPORT_APPROVED_KEY = "alexandra-transport-approved";
+    const TRANSPORT_DECLINED_KEY = "alexandra-transport-declined";
+    const TRANSPORT_REMOVED_KEY = "alexandra-transport-removed";
+    const RECEIPTS_KEY = "alexandra-receipts";
+    const SESSION_KEY = "alexandra-admin-logged-in";
+    const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80";
+    window.liveAdminBackendReady = false;
+
+    const state = {
+      view: "pending"
+    };
+
+    const loginScreen = document.querySelector("#loginScreen");
+    const portal = document.querySelector("#portal");
+    const roomList = document.querySelector("#roomList");
+    const notice = document.querySelector("#notice");
+    const monthlyReport = document.querySelector("#monthlyReport");
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function imageURL(value) {
+      if (/^data:image\/(png|jpe?g|webp|gif);base64,/i.test(String(value))) {
+        return value;
+      }
+
+      try {
+        const url = new URL(value);
+        return ["http:", "https:"].includes(url.protocol) ? url.href : fallbackImage;
+      } catch (error) {
+        return fallbackImage;
+      }
+    }
+
+    function isVideoSource(src) {
+      return /^data:video\//i.test(String(src)) || /\.(mp4|webm|ogg)(\?|#|$)/i.test(String(src));
+    }
+
+    function openMediaViewer(src) {
+      const viewer = document.querySelector("#mediaViewer");
+      const content = document.querySelector("#mediaContent");
+      content.innerHTML = isVideoSource(src)
+        ? `<video src="${src}" controls autoplay playsinline></video>`
+        : `<img src="${src}" alt="Full screen view">`;
+      viewer.classList.add("is-open");
+      viewer.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeMediaViewer() {
+      const viewer = document.querySelector("#mediaViewer");
+      document.querySelector("#mediaContent").innerHTML = "";
+      viewer.classList.remove("is-open");
+      viewer.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function money(value) {
+      const trimmed = String(value ?? "").trim();
+      if (!trimmed) return "Ask price";
+      if (trimmed.toLowerCase().startsWith("r")) return trimmed;
+      return "R" + trimmed;
+    }
+
+    function moneyNumber(value) {
+      const parsed = Number(String(value || "").replace(/[^\d.]/g, ""));
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function serviceFeeForRent(rent) {
+      const amount = moneyNumber(rent);
+      if (amount >= 800 && amount <= 1500) return 200;
+      if (amount >= 1600 && amount <= 2000) return 250;
+      if (amount >= 2100 && amount <= 3000) return 300;
+      if (amount >= 3100 && amount <= 5000) return 400;
+      return 0;
+    }
+
+    function monthKey(dateValue) {
+      const value = String(dateValue || "");
+      if (/^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 7);
+      const date = value ? new Date(value) : new Date();
+      if (Number.isNaN(date.getTime())) return new Date().toISOString().slice(0, 7);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function monthName(key) {
+      const [year, month] = key.split("-").map(Number);
+      return new Date(year, month - 1, 1).toLocaleString("en-ZA", { month: "long", year: "numeric" });
+    }
+
+    function openReceiptWindow(room) {
+      const receipt = room.receipt || {};
+      const win = window.open("", "_blank");
+      if (!win) return showNotice("Allow pop-ups, then try creating the receipt again.");
+      win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Receipt</title><style>@page{size:105mm 148mm;margin:7mm}body{font-family:Arial,sans-serif;color:#17201b}.box{border:1px solid #17201b;padding:12px;max-width:360px}h1{font-size:20px;margin:0 0 10px}.row{display:flex;justify-content:space-between;border-bottom:1px dashed #aaa;padding:6px 0}.stamp{border:2px solid #0f7a5f;border-radius:50%;width:92px;height:92px;display:grid;place-items:center;text-align:center;color:#0f7a5f;font-weight:800;margin:12px auto}.actions{margin-bottom:12px}.actions button{padding:10px 12px;border:0;border-radius:8px;background:#0f7a5f;color:white;font-weight:800}@media print{.actions{display:none}}</style></head><body><div class="actions"><button onclick="window.print()">Print / Save PDF</button></div><div class="box"><h1>Alexandra Rooms To Rent</h1><div class="row"><span>Date</span><strong>${escapeHTML(receipt.date || "")}</strong></div><div class="row"><span>Tenant</span><strong>${escapeHTML(receipt.tenantName || "")}</strong></div><div class="row"><span>Number</span><strong>${escapeHTML(receipt.tenantNumber || "")}</strong></div><div class="row"><span>Payment</span><strong>${escapeHTML(receipt.paymentType || "")}</strong></div><div class="row"><span>Address</span><strong>${escapeHTML(receipt.roomAddress || room.address || "")}</strong></div><div class="row"><span>Rent</span><strong>${escapeHTML(money(receipt.rentAmount || room.amount))}</strong></div><div class="row"><span>Deposit</span><strong>${escapeHTML(receipt.depositAmount || room.deposit || "")}</strong></div><div class="row"><span>Service fee</span><strong>${escapeHTML(money(receipt.serviceFee || 0))}</strong></div><div class="stamp">Alexandra<br>Rooms<br><small>${escapeHTML(receipt.date || "")}</small></div><p style="text-align:center;font-weight:800">Thank you</p></div></body></html>`);
+      win.document.close();
+    }
+
+    function renderMonthlyChart(entries) {
+      const width = 760;
+      const height = 260;
+      const left = 42;
+      const right = 20;
+      const top = 26;
+      const bottom = 48;
+      const chartWidth = width - left - right;
+      const chartHeight = height - top - bottom;
+      const maxRevenue = Math.max(1, ...entries.map((entry) => entry.revenue));
+      const points = entries.map((entry, index) => {
+        const x = left + (chartWidth / 11) * index;
+        const y = top + chartHeight - (entry.revenue / maxRevenue) * chartHeight;
+        return { ...entry, x, y };
+      });
+      const polyline = points.map((point) => `${point.x},${point.y}`).join(" ");
+      const yLabels = [maxRevenue, Math.round(maxRevenue / 2), 0];
+      return `
+        <div class="monthly-chart">
+          <strong>Monthly breakdown line graph</strong>
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Monthly service fee revenue line graph">
+            <line class="axis" x1="${left}" y1="${top}" x2="${left}" y2="${top + chartHeight}"></line>
+            <line class="axis" x1="${left}" y1="${top + chartHeight}" x2="${width - right}" y2="${top + chartHeight}"></line>
+            ${yLabels.map((value) => {
+              const y = top + chartHeight - (value / maxRevenue) * chartHeight;
+              return `
+                <line class="axis" x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" opacity="0.55"></line>
+                <text x="4" y="${y + 4}">${money(value)}</text>
+              `;
+            }).join("")}
+            <polyline class="line" points="${polyline}"></polyline>
+            ${points.map((point) => `
+              <circle class="point" cx="${point.x}" cy="${point.y}" r="5"></circle>
+              <text x="${point.x}" y="${point.y - 10}" text-anchor="middle">${money(point.revenue)}</text>
+              <text class="month-label" x="${point.x}" y="${height - 18}" text-anchor="middle">${point.label}</text>
+            `).join("")}
+          </svg>
+        </div>
+      `;
+    }
+
+    function getList(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveList(key, list) {
+      localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function keyForView(view) {
+      return {
+        pending: PENDING_KEY,
+        approved: APPROVED_KEY,
+        taken: TAKEN_KEY,
+        declined: DECLINED_KEY,
+        removed: REMOVED_KEY,
+        "review-pending": REVIEW_PENDING_KEY,
+        "review-approved": REVIEW_APPROVED_KEY,
+        "review-declined": REVIEW_DECLINED_KEY,
+        "report-pending": REPORT_PENDING_KEY,
+        "report-approved": REPORT_APPROVED_KEY,
+        "report-declined": REPORT_DECLINED_KEY,
+        "transport-pending": TRANSPORT_PENDING_KEY,
+        "transport-approved": TRANSPORT_APPROVED_KEY,
+        "transport-declined": TRANSPORT_DECLINED_KEY,
+        "transport-removed": TRANSPORT_REMOVED_KEY
+      }[view];
+    }
+
+    function viewLabel(view) {
+      return {
+        pending: "pending room",
+        approved: "approved room",
+        taken: "taken room",
+        declined: "declined room",
+        removed: "removed room",
+        "review-pending": "pending review",
+        "review-approved": "approved review",
+        "review-declined": "declined review",
+        "report-pending": "scam report",
+        "report-approved": "approved report",
+        "report-declined": "declined report",
+        "transport-pending": "pending moving transport",
+        "transport-approved": "approved moving transport",
+        "transport-declined": "declined moving transport",
+        "transport-removed": "removed moving transport"
+      }[view] || "post";
+    }
+
+    function renderTabCounts() {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        const base = tab.dataset.label || tab.textContent.replace(/\s+\(\d+\)$/g, "");
+        tab.dataset.label = base;
+        const list = getList(keyForView(tab.dataset.view));
+        tab.textContent = `${base} (${list.length})`;
+      });
+    }
+
+    function showNotice(message) {
+      notice.textContent = message;
+      notice.classList.add("is-visible");
+      setTimeout(() => notice.classList.remove("is-visible"), 3200);
+    }
+
+    function setLoggedIn(value) {
+      if (value) {
+        sessionStorage.setItem(SESSION_KEY, "yes");
+      } else {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+      renderAuth();
+    }
+
+    function renderAuth() {
+      const loggedIn = sessionStorage.getItem(SESSION_KEY) === "yes";
+      loginScreen.style.display = loggedIn ? "none" : "block";
+      portal.classList.toggle("is-visible", loggedIn);
+      if (loggedIn) {
+        renderRooms();
+      }
+    }
+
+    function moveRoom(id, fromKey, toKey, status) {
+      const fromList = getList(fromKey);
+      const room = fromList.find((item) => item.id === id);
+      if (!room) return;
+
+      const nextFrom = fromList.filter((item) => item.id !== id);
+      const nextTo = getList(toKey).filter((item) => item.id !== id);
+      nextTo.unshift({
+        ...room,
+        status,
+        updatedAt: new Date().toISOString()
+      });
+      saveList(fromKey, nextFrom);
+      saveList(toKey, nextTo);
+      renderRooms();
+    }
+
+    function deleteRoom(id, key) {
+      saveList(key, getList(key).filter((item) => item.id !== id));
+      renderRooms();
+      renderMonthlyReport();
+    }
+
+    function removeRoomImage(id, key, index) {
+      const list = getList(key).map((item) => {
+        if (item.id !== id) return item;
+        const images = (item.images || []).filter((_, imageIndex) => imageIndex !== index);
+      return { ...item, images };
+      });
+      saveList(key, list);
+      renderRooms();
+    }
+
+    function removeRoomVideo(id, key) {
+      const list = getList(key).map((item) => item.id === id ? { ...item, video: "" } : item);
+      saveList(key, list);
+      renderRooms();
+    }
+
+    function duplicateToPending(id, key) {
+      const source = getList(key).find((item) => item.id === id);
+      if (!source) return;
+
+      const pending = getList(PENDING_KEY);
+      pending.unshift({
+        ...source,
+        id: "repost-" + Date.now(),
+        status: "pending",
+        updatedAt: new Date().toISOString()
+      });
+      saveList(PENDING_KEY, pending);
+      state.view = "pending";
+      setActiveTab();
+      renderRooms();
+      showNotice("Room copied back to Pending for review.");
+    }
+
+    function roomImages(room) {
+      const images = (room.images || []).slice(0, 5);
+      const video = room.video || "";
+      if (!images.length && !video) return `<div class="empty">No pictures or videos submitted.</div>`;
+
+      return `
+        <div class="images">
+          ${images.map((src, index) => `
+            <div class="image-tile">
+              <img src="${imageURL(src)}" alt="${escapeHTML(room.type || room.title || "Room")} picture ${index + 1}" data-media-src="${imageURL(src)}">
+              <button class="image-remove" type="button" data-action="remove-image" data-id="${room.id}" data-index="${index}">Remove</button>
+            </div>
+          `).join("")}
+          ${video ? `<div class="image-tile"><video src="${video}" controls data-media-src="${video}"></video><button class="image-remove" type="button" data-action="remove-video" data-id="${room.id}">Remove video</button></div>` : ""}
+        </div>
+      `;
+    }
+
+    function detail(label, value) {
+      return `<div class="detail"><strong>${escapeHTML(label)}</strong>${escapeHTML(value)}</div>`;
+    }
+
+    function reviewStars(rating) {
+      const count = Math.max(1, Math.min(5, Number(rating) || 5));
+      return "★★★★★".slice(0, count) + "☆☆☆☆☆".slice(0, 5 - count);
+    }
+
+    function reviewCard(review) {
+      return `
+        <article class="room-card">
+          <div class="empty">
+            <strong>Room review</strong><br>
+            ${escapeHTML(review.roomTitle || "Room listing")}
+          </div>
+          <div>
+            <h3>${escapeHTML(review.name || "Room seeker")}</h3>
+            <p><strong>${reviewStars(review.rating)}</strong></p>
+            <p>${escapeHTML(review.comment || "No comment submitted.")}</p>
+            <div class="details">
+              ${detail("Room", review.roomTitle || review.roomId || "Unknown room")}
+              ${detail("Status", review.status || state.view)}
+            </div>
+            <div class="actions" style="margin-top: 12px;">
+              ${actionButtons(review)}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function reportCard(report) {
+      return `
+        <article class="room-card">
+          <div class="empty">
+            <strong>Scam report</strong><br>
+            Admin must review before action.
+          </div>
+          <div>
+            <h3>${escapeHTML(report.room || "Reported room")}</h3>
+            <p>${escapeHTML(report.reason || "No reason submitted.")}</p>
+            <div class="details">
+              ${detail("Reporter contact", report.reporterContact || "Not provided")}
+              ${detail("Status", report.status || state.view)}
+            </div>
+            <p class="hint">If the report is valid, remove the matching room from the Approved Public tab so it no longer appears on the public site.</p>
+            <div class="actions" style="margin-top: 12px;">
+              ${actionButtons(report)}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function transportCard(driver) {
+      return `
+        <article class="room-card">
+          <div class="admin-images">
+            ${driver.carPicture ? `<div class="image-tile"><img src="${imageURL(driver.carPicture)}" alt="Moving transport car" data-media-src="${imageURL(driver.carPicture)}"></div>` : `<div class="empty">No car picture submitted.</div>`}
+            ${driver.idPicture ? `<div class="image-tile"><img src="${imageURL(driver.idPicture)}" alt="Driver ID or passport" data-media-src="${imageURL(driver.idPicture)}"></div>` : ""}
+          </div>
+          <div>
+            <h3>${escapeHTML([driver.firstName, driver.surname].filter(Boolean).join(" ") || "Moving transport driver")}</h3>
+            <p>${escapeHTML(driver.notes || "No extra transport notes.")}</p>
+            <div class="details">
+              ${detail("Local Alex price", driver.localPrice || "Not stated")}
+              ${detail("Outside Alex price", driver.outsidePrice || "Not stated")}
+              ${detail("Driver phone", driver.phone || "Not stated")}
+              ${detail("Driver email", driver.email || "Not stated")}
+              ${detail("Status", driver.status || state.view)}
+            </div>
+            <div class="private">
+              Private admin view: driver contact details and ID/passport picture must not show on the public site.
+            </div>
+            <div class="actions" style="margin-top: 12px;">
+              ${actionButtons(driver)}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function actionButtons(room) {
+      const key = keyForView(state.view);
+      if (state.view === "review-pending") {
+        return `
+          <button class="btn btn-primary" type="button" data-action="approve-review" data-id="${room.id}">Approve Review</button>
+          <button class="btn btn-warning" type="button" data-action="decline-review" data-id="${room.id}">Decline Review</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "review-approved" || state.view === "review-declined") {
+        return `
+          <button class="btn btn-secondary" type="button" data-action="recheck-review" data-id="${room.id}">Move To Pending</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "report-pending") {
+        return `
+          <button class="btn btn-primary" type="button" data-action="approve-report" data-id="${room.id}">Approve Report</button>
+          <button class="btn btn-warning" type="button" data-action="decline-report" data-id="${room.id}">Decline Report</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "report-approved" || state.view === "report-declined") {
+        return `
+          <button class="btn btn-secondary" type="button" data-action="recheck-report" data-id="${room.id}">Move To Pending</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "transport-pending") {
+        return `
+          <button class="btn btn-primary" type="button" data-action="approve-transport" data-id="${room.id}">Approve Transport</button>
+          <button class="btn btn-warning" type="button" data-action="decline-transport" data-id="${room.id}">Decline</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "transport-approved") {
+        return `
+          <button class="btn btn-warning" type="button" data-action="remove-transport" data-id="${room.id}">Remove From Public Site</button>
+          <button class="btn btn-secondary" type="button" data-action="repost" data-id="${room.id}">Repost Copy</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "transport-declined" || state.view === "transport-removed") {
+        return `
+          <button class="btn btn-secondary" type="button" data-action="repost" data-id="${room.id}">Repost To Pending</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "pending") {
+        return `
+          <button class="btn btn-primary" type="button" data-action="approve" data-id="${room.id}">Approve Post</button>
+          <button class="btn btn-warning" type="button" data-action="decline" data-id="${room.id}">Decline</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "approved") {
+        return `
+          <button class="btn btn-primary" type="button" data-action="issue-receipt" data-id="${room.id}">Mark Taken / Issue Receipt</button>
+          <button class="btn btn-warning" type="button" data-action="remove" data-id="${room.id}">Remove From Public Site</button>
+          <button class="btn btn-secondary" type="button" data-action="repost" data-id="${room.id}">Repost Copy</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      if (state.view === "taken") {
+        return `
+          <button class="btn btn-primary" type="button" data-action="download-receipt" data-id="${room.id}">Download Receipt</button>
+          <button class="btn btn-secondary" type="button" data-action="repost" data-id="${room.id}">Repost Copy</button>
+          <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+        `;
+      }
+
+      return `
+        <button class="btn btn-primary" type="button" data-action="repost" data-id="${room.id}">Repost To Pending</button>
+        <button class="btn btn-danger" type="button" data-action="delete" data-id="${room.id}">Delete</button>
+      `;
+    }
+
+    function roomCard(room) {
+      return `
+        <article class="room-card">
+          ${roomImages(room)}
+          <div>
+            <h3>${escapeHTML(room.type || room.title || "Room")}</h3>
+            <p>${escapeHTML([room.location, room.address].filter(Boolean).join(", ") || "No location/address submitted")}</p>
+            <div class="details">
+              ${detail("Location", room.location || "Not stated")}
+              ${detail("Address", room.address || "Not stated")}
+              ${detail("Type", room.type)}
+              ${detail("Amount", money(room.amount))}
+              ${detail("Deposit", room.deposit || "No deposit stated")}
+              ${room.receipt ? detail("Service fee", money(room.receipt.serviceFee || 0)) : ""}
+              ${room.receipt ? detail("Receipt date", room.receipt.date || "") : ""}
+              ${detail("Child friendly", room.childFriendly === "Yes" ? "Yes, kids allowed" : "No kids allowed")}
+              ${detail("Bath / shower", room.bath)}
+              ${detail("Parking", room.parking === "Yes" ? "Parking available" : "No parking")}
+            </div>
+            <p>${escapeHTML(room.notes || "No extra notes.")}</p>
+            <div class="private">
+              Poster: ${escapeHTML(room.posterName || "No name")}<br>
+              Contact: ${escapeHTML(room.posterContact || "No contact")}
+            </div>
+            <div class="actions" style="margin-top: 12px;">
+              ${actionButtons(room)}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderRooms() {
+      renderTabCounts();
+      const list = getList(keyForView(state.view));
+      if (!list.length) {
+        roomList.innerHTML = `<div class="empty">No ${viewLabel(state.view)} posts yet.</div>`;
+        renderMonthlyReport();
+        return;
+      }
+
+      if (state.view.startsWith("review-")) {
+        roomList.innerHTML = list.map(reviewCard).join("");
+        return;
+      }
+
+      if (state.view.startsWith("report-")) {
+        roomList.innerHTML = list.map(reportCard).join("");
+        return;
+      }
+
+      if (state.view.startsWith("transport-")) {
+        roomList.innerHTML = list.map(transportCard).join("");
+        return;
+      }
+
+      roomList.innerHTML = list.map(roomCard).join("");
+      renderMonthlyReport();
+    }
+
+    function renderMonthlyReport() {
+      const taken = getList(TAKEN_KEY);
+      const approved = getList(APPROVED_KEY);
+      const current = monthKey(new Date());
+      const year = new Date().getFullYear();
+      const currentTaken = taken.filter((room) => monthKey(room.receipt?.date || room.takenAt) === current);
+      const currentRevenue = currentTaken.reduce((sum, room) => sum + moneyNumber(room.receipt?.serviceFee), 0);
+      const totalRevenue = taken.reduce((sum, room) => sum + moneyNumber(room.receipt?.serviceFee), 0);
+      const potentialRevenue = approved.reduce((sum, room) => sum + serviceFeeForRent(room.amount), 0);
+      const months = {};
+      for (let month = 1; month <= 12; month++) {
+        months[`${year}-${String(month).padStart(2, "0")}`] = { count: 0, revenue: 0 };
+      }
+      taken.forEach((room) => {
+        const key = monthKey(room.receipt?.date || room.takenAt);
+        if (!key.startsWith(String(year))) return;
+        months[key] = months[key] || { count: 0, revenue: 0 };
+        months[key].count += 1;
+        months[key].revenue += moneyNumber(room.receipt?.serviceFee);
+      });
+      const monthEntries = Object.entries(months)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, value]) => ({
+          key,
+          label: monthName(key).slice(0, 3),
+          count: value.count,
+          revenue: value.revenue
+        }));
+      monthlyReport.innerHTML = `
+        ${detail("This month service fees", money(currentRevenue))}
+        ${detail("Total service fees", money(totalRevenue))}
+        ${detail("Potential revenue", `${money(potentialRevenue)} from approved rooms' service fees only`)}
+        ${detail("Taken this month", String(currentTaken.length))}
+        ${renderMonthlyChart(monthEntries)}
+      `;
+    }
+
+    function setActiveTab() {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.toggle("is-active", tab.dataset.view === state.view);
+      });
+    }
+
+    document.querySelector("#loginForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!window.liveAdminBackendReady) {
+        const loginError = document.querySelector("#loginError");
+        loginError.textContent = "Live admin script did not load. Refresh the page and make sure admin-backend.js is deployed.";
+        loginError.classList.add("is-visible");
+        return;
+      }
+      if (document.querySelector("#adminPassword").value !== ADMIN_PASSWORD) {
+        document.querySelector("#loginError").classList.add("is-visible");
+        return;
+      }
+
+      document.querySelector("#loginError").classList.remove("is-visible");
+      setLoggedIn(true);
+    });
+
+    document.querySelector("#logoutButton").addEventListener("click", () => setLoggedIn(false));
+
+    document.querySelector(".tabs").addEventListener("click", (event) => {
+      const tab = event.target.closest("[data-view]");
+      if (!tab) return;
+      state.view = tab.dataset.view;
+      setActiveTab();
+      renderRooms();
+    });
+
+    roomList.addEventListener("click", (event) => {
+      const media = event.target.closest("[data-media-src]");
+      if (media) {
+        openMediaViewer(media.dataset.mediaSrc);
+        return;
+      }
+
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+
+      if (!window.liveAdminBackendReady) {
+        showNotice("Live admin script did not load. Refresh the page and make sure admin-backend.js is deployed.");
+        return;
+      }
+
+      const id = button.dataset.id;
+      const currentKey = keyForView(state.view);
+      const action = button.dataset.action;
+
+      if (action === "approve") {
+        moveRoom(id, PENDING_KEY, APPROVED_KEY, "approved");
+        showNotice("Post approved and now visible on the public site.");
+      }
+
+      if (action === "remove-image") {
+        removeRoomImage(id, currentKey, Number(button.dataset.index));
+        showNotice("Picture removed from this room post.");
+      }
+
+      if (action === "decline") {
+        moveRoom(id, PENDING_KEY, DECLINED_KEY, "declined");
+        showNotice("Post declined.");
+      }
+
+      if (action === "approve-review") {
+        moveRoom(id, REVIEW_PENDING_KEY, REVIEW_APPROVED_KEY, "approved");
+        showNotice("Review approved and now visible on the public site.");
+      }
+
+      if (action === "decline-review") {
+        moveRoom(id, REVIEW_PENDING_KEY, REVIEW_DECLINED_KEY, "declined");
+        showNotice("Review declined.");
+      }
+
+      if (action === "recheck-review") {
+        moveRoom(id, currentKey, REVIEW_PENDING_KEY, "pending");
+        state.view = "review-pending";
+        setActiveTab();
+        renderRooms();
+        showNotice("Review moved back to Pending.");
+      }
+
+      if (action === "approve-report") {
+        moveRoom(id, REPORT_PENDING_KEY, REPORT_APPROVED_KEY, "approved");
+        showNotice("Scam report approved. Check Approved Public rooms and remove the matching room if needed.");
+      }
+
+      if (action === "decline-report") {
+        moveRoom(id, REPORT_PENDING_KEY, REPORT_DECLINED_KEY, "declined");
+        showNotice("Scam report declined.");
+      }
+
+      if (action === "recheck-report") {
+        moveRoom(id, currentKey, REPORT_PENDING_KEY, "pending");
+        state.view = "report-pending";
+        setActiveTab();
+        renderRooms();
+        showNotice("Report moved back to Scam Reports.");
+      }
+
+      if (action === "remove") {
+        moveRoom(id, APPROVED_KEY, REMOVED_KEY, "removed");
+        showNotice("Room removed from the public site.");
+      }
+
+      if (action === "repost") {
+        duplicateToPending(id, currentKey);
+      }
+
+      if (action === "delete") {
+        deleteRoom(id, currentKey);
+        showNotice("Post deleted.");
+      }
+    });
+
+    document.querySelector("#mediaClose").addEventListener("click", closeMediaViewer);
+    document.querySelector("#mediaViewer").addEventListener("click", (event) => {
+      if (event.target.id === "mediaViewer") closeMediaViewer();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMediaViewer();
+    });
+
+    renderAuth();
+  </script>
+  <script src="admin-backend.js"></script>
+</body>
+</html>
