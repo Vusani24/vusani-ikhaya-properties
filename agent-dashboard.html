@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VUSANI IKHAYA PROPERTIES Agent Dashboard</title>
+  <style>
+    :root {
+      --brand: #07543f;
+      --brand-2: #0d7b5d;
+      --gold: #c79a22;
+      --ink: #111c17;
+      --muted: #66736d;
+      --line: #dbe5df;
+      --soft: #f3f8f5;
+      --panel: #ffffff;
+      --danger: #b42318;
+      --warn: #b7791f;
+      --shadow: 0 18px 45px rgba(6, 38, 28, .12);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #071811 0, #0b2b20 260px, #f7faf8 260px);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+      background: rgba(7, 24, 17, .96);
+      color: #fff;
+    }
+    .topbar-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .brand img {
+      width: 62px;
+      height: 62px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .brand strong { display: block; font-size: 20px; line-height: 1.1; }
+    .brand span { display: block; color: #d9efe7; font-size: 13px; margin-top: 3px; }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .top-actions[hidden] { display: none; }
+    .btn {
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary { color: #fff; background: var(--brand-2); }
+    .btn-secondary { color: var(--brand); background: #fff; border-color: var(--line); }
+    .btn-dark { color: #fff; background: #10271f; border-color: rgba(255,255,255,.18); }
+    .btn-warning { color: #fff; background: var(--warn); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .login-screen {
+      min-height: calc(100vh - 91px);
+      display: grid;
+      place-items: center;
+      padding: 28px 18px;
+    }
+    .login-card {
+      width: min(520px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .login-card h1 { margin: 0 0 8px; color: var(--brand); }
+    .login-card p { margin: 0 0 18px; color: var(--muted); line-height: 1.5; }
+
+    .portal {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 22px 18px 50px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+    }
+    .sidebar {
+      align-self: start;
+      position: sticky;
+      top: 104px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      max-height: calc(100vh - 125px);
+      overflow: auto;
+    }
+    .nav-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      padding: 11px 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .nav-btn:hover, .nav-btn.active { color: #fff; background: var(--brand); }
+    .main { min-width: 0; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .hero-panel {
+      color: #fff;
+      background: linear-gradient(135deg, #073f31, #101917);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+    .hero-panel h1 { margin: 0 0 8px; font-size: clamp(26px, 3vw, 38px); }
+    .hero-panel p { margin: 0; color: #dceee8; }
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 9px 12px;
+      background: rgba(255,255,255,.12);
+      font-weight: 700;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #19b56f;
+    }
+    .dot.pending { background: #d99b24; }
+    .dot.suspended { background: #dc3f32; }
+    .grid { display: grid; gap: 14px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .panel h2 { margin: 0 0 12px; color: var(--brand); }
+    .panel h3 { margin: 0 0 10px; color: #19352b; }
+    .stat {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 98px;
+    }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .stat strong { display: block; margin-top: 8px; font-size: 28px; color: var(--brand); }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    label { display: grid; gap: 6px; color: var(--ink); font-weight: 700; }
+    label span { font-size: 13px; color: var(--muted); font-weight: 700; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--ink);
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    .full { grid-column: 1 / -1; }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .notice {
+      display: none;
+      margin: 12px 0 0;
+      padding: 11px 12px;
+      border-radius: 8px;
+      border: 1px solid #b8dfc8;
+      background: #ecfff4;
+      color: #135c36;
+      font-weight: 700;
+    }
+    .notice.show { display: block; }
+    .list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .list-item {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .list-item strong { color: var(--brand); }
+    .chart {
+      width: 100%;
+      height: 220px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff, #f4faf6);
+    }
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .resource {
+      min-height: 94px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+    .resource strong { display: block; color: var(--brand); margin-bottom: 6px; }
+
+    @media (max-width: 900px) {
+      .portal { grid-template-columns: 1fr; }
+      .sidebar { position: static; max-height: none; display: flex; overflow-x: auto; }
+      .nav-btn { white-space: nowrap; width: auto; }
+      .grid-2, .grid-3, .grid-4, .form-grid, .resource-grid { grid-template-columns: 1fr; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <img src="assets/alexandra-logo.png" alt="Vusani Ikhaya Properties logo">
+        <span>
+          <strong>VUSANI IKHAYA PROPERTIES</strong>
+          <span>Agent Dashboard</span>
+        </span>
+      </a>
+      <div class="top-actions" id="agentTopActions" hidden>
+        <a class="btn btn-dark" href="index.html">Public Site</a>
+        <a class="btn btn-dark" href="admin.html">Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="loginScreen" class="login-screen" hidden>
+    <form class="login-card" id="loginForm">
+      <h1>Agent Login</h1>
+      <p>Sign in to register properties, manage landlords, book viewings, and send work to admin for approval.</p>
+      <label>Agent Username
+        <input id="loginUsername" required placeholder="Username from admin">
+      </label>
+      <br>
+      <label>Password
+        <input id="loginPassword" type="password" required placeholder="Password from admin">
+        <span>Use the private login details supplied by admin.</span>
+      </label>
+      <br>
+      <button class="btn btn-primary" type="submit">Log In</button>
+      <p class="hint">Each agent must use their own username and password created by admin.</p>
+    </form>
+  </main>
+
+  <main id="portal" class="portal" hidden>
+    <aside class="sidebar" aria-label="Agent portal navigation">
+      <button class="nav-btn active" data-view="dashboard">🏠 Dashboard</button>
+      <button class="nav-btn" data-view="profile">👤 My Profile</button>
+      <button class="nav-btn" data-view="property">🏡 Register Property</button>
+      <button class="nav-btn" data-view="landlord">👥 Register Landlord</button>
+      <button class="nav-btn" data-view="listings">📋 My Listings</button>
+      <button class="nav-btn" data-view="leads">📞 Tenant Enquiries</button>
+      <button class="nav-btn" data-view="viewings">📅 Viewings</button>
+      <button class="nav-btn" data-view="commission">💰 Commission</button>
+      <button class="nav-btn" data-view="performance">📈 Performance</button>
+      <button class="nav-btn" data-view="daily">📝 Daily Reports</button>
+      <button class="nav-btn" data-view="notifications">📢 Announcements</button>
+      <button class="nav-btn" data-view="chat">💬 Messages</button>
+      <button class="nav-btn" data-view="support">🛠 Support</button>
+      <button class="nav-btn" data-view="settings">⚙ Settings</button>
+      <button class="nav-btn" id="logoutButton">🚪 Logout</button>
+    </aside>
+
+    <div class="main">
+      <section class="section active" id="dashboard">
+        <div class="hero-panel">
+          <h1>Welcome back, <span data-agent-name>Agent</span></h1>
+          <p id="todayText"></p>
+          <div class="status-row">
+            <span class="status-pill"><span class="dot"></span> Active</span>
+            <span class="status-pill"><span class="dot pending"></span> Pending Verification</span>
+            <span class="status-pill"><span class="dot suspended"></span> Suspended</span>
+          </div>
+        </div>
+        <div class="grid grid-3">
+          <div class="stat"><span>Properties Registered</span><strong id="statProperties">0</strong></div>
+          <div class="stat"><span>Active Listings</span><strong id="statActive">0</strong></div>
+          <div class="stat"><span>Viewings Booked</span><strong id="statViewings">0</strong></div>
+          <div class="stat"><span>Successful Placements</span><strong id="statPlacements">0</strong></div>
+          <div class="stat"><span>Commission Earned</span><strong id="statEarned">R0</strong></div>
+          <div class="stat"><span>Commission Pending</span><strong id="statPending">R0</strong></div>
+        </div>
+        <div class="panel">
+          <h2>Quick Actions</h2>
+          <div class="actions">
+            <button class="btn btn-primary" data-go="property">Register Property</button>
+            <button class="btn btn-secondary" data-go="landlord">Register Landlord</button>
+            <button class="btn btn-secondary" data-go="viewings">Book Viewing</button>
+            <button class="btn btn-secondary" data-go="property">Upload Photos</button>
+            <button class="btn btn-secondary" data-go="performance">View Performance</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="profile">
+        <form class="panel" id="profileForm">
+          <h2>My Profile</h2>
+          <div class="form-grid">
+            <label>Profile Picture <input name="profilePicture" type="file" accept="image/*"></label>
+            <label>Full Name <input name="fullName" required></label>
+            <label>ID Number <input name="idNumber"></label>
+            <label>Phone Number <input name="phone"></label>
+            <label>Email <input name="email" type="email"></label>
+            <label>Residential Address <input name="residentialAddress"></label>
+            <label>Emergency Contact <input name="emergencyContact"></label>
+            <label>Commission Rate <input name="commissionRate" placeholder="Example: 10%"></label>
+            <label>Employment Status
+              <select name="employmentStatus"><option>Active</option><option>Pending Verification</option><option>Suspended</option></select>
+            </label>
+            <label>Date Joined <input name="dateJoined" type="date"></label>
+            <label class="full">Bank Details <textarea name="bankDetails"></textarea></label>
+            <label class="full">Documents
+              <input name="documents" type="file" multiple>
+              <span>ID copy, selfie with ID, agent agreement, proof of address, training certificate.</span>
+            </label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Save Profile</button>
+          <div class="notice" id="profileNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="property">
+        <form class="panel" id="propertyForm">
+          <h2>Property Registration</h2>
+          <p class="hint">Submitted properties go to Admin Pending Review. Only approved properties are published on the public website.</p>
+          <div class="form-grid">
+            <label>Property Type
+              <select name="propertyType" required>
+                <option>Room</option><option>Bachelor</option><option>Cottage</option><option>Flat</option><option>House</option><option>Shop</option>
+              </select>
+            </label>
+            <label>Room Type
+              <select name="roomType">
+                <option>Any</option><option>1+</option><option>2+</option><option>3+</option><option>4+</option><option>5+</option><option>6+</option><option>7+</option><option>8+</option><option>9+</option><option>10+</option><option>Single Room</option><option>Bachelor</option><option>Cottage</option>
+              </select>
+            </label>
+            <label>Location <input name="location" required placeholder="Example: Alexandra, Sandton, Midrand"></label>
+            <label>Property Address <input name="address" required placeholder="Street address"></label>
+            <label>Monthly Rent <input name="amount" required placeholder="R1800"></label>
+            <label>Deposit <input name="deposit" placeholder="R300 or No deposit"></label>
+            <label>Available Date <input name="availableDate" type="date"></label>
+            <label>Parking
+              <select name="parking"><option>Yes</option><option>No</option></select>
+            </label>
+            <label>Electricity Included
+              <select name="electricityIncluded"><option>Yes</option><option>No</option><option>Prepaid</option></select>
+            </label>
+            <label>Water Included
+              <select name="waterIncluded"><option>Yes</option><option>No</option></select>
+            </label>
+            <label>Wi-Fi
+              <select name="wifi"><option>No</option><option>Yes</option></select>
+            </label>
+            <label>Child Friendly
+              <select name="childFriendly"><option>Yes</option><option>No</option></select>
+            </label>
+            <label>Bath / Shower <input name="bath" placeholder="Own bathroom, sharing, shower, outside toilet"></label>
+            <label>Landlord Name <input name="landlordName"></label>
+            <label>Landlord Phone <input name="landlordPhone"></label>
+            <label class="full">Property Description <textarea name="description"></textarea></label>
+            <label class="full">Rules <textarea name="rules"></textarea></label>
+            <label>Nearby Schools <input name="nearbySchools"></label>
+            <label>Nearby Taxi Rank <input name="nearbyTaxiRank"></label>
+            <label>Nearby Mall <input name="nearbyMall"></label>
+            <label>Property Photos
+              <input name="images" type="file" accept="image/*" multiple>
+              <span>Maximum 5 photos.</span>
+            </label>
+            <label>Video <input name="video" type="file" accept="video/*"></label>
+            <label>Documents <input name="documents" type="file" multiple></label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Submit Property</button>
+          <button class="btn btn-secondary" type="reset">Clear Form</button>
+          <div class="notice" id="propertyNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="landlord">
+        <form class="panel" id="landlordForm">
+          <h2>Landlord Registration</h2>
+          <div class="form-grid">
+            <label>Landlord Name <input name="landlordName" required></label>
+            <label>ID Number <input name="idNumber"></label>
+            <label>Phone Number <input name="phone" required></label>
+            <label>Email <input name="email" type="email"></label>
+            <label class="full">Residential Address <input name="residentialAddress"></label>
+            <label>Preferred Contact Method
+              <select name="preferredContactMethod"><option>Phone</option><option>WhatsApp</option><option>Email</option></select>
+            </label>
+            <label class="full">Upload Documents <input name="documents" type="file" multiple><span>ID, proof of ownership, signed consent form.</span></label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Save Landlord</button>
+          <div class="notice" id="landlordNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="listings">
+        <div class="panel">
+          <h2>My Listings</h2>
+          <input id="listingSearch" placeholder="Search my listings">
+          <div class="list" id="listingList"></div>
+        </div>
+      </section>
+
+      <section class="section" id="leads">
+        <form class="panel" id="leadForm">
+          <h2>Tenant Enquiries</h2>
+          <div class="form-grid">
+            <label>Lead Name <input name="leadName" required></label>
+            <label>Phone Number <input name="phone" required></label>
+            <label>Budget <input name="budget"></label>
+            <label>Preferred Area <input name="preferredArea"></label>
+            <label>Move-in Date <input name="moveInDate" type="date"></label>
+            <label>Interested Property <input name="interestedProperty"></label>
+            <label>Status
+              <select name="status"><option>New</option><option>Contacted</option><option>Viewing Booked</option><option>Closed</option></select>
+            </label>
+            <label class="full">Notes <textarea name="notes"></textarea></label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Save Lead</button>
+          <div class="notice" id="leadNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="viewings">
+        <form class="panel" id="viewingForm">
+          <h2>Viewing Management</h2>
+          <div class="form-grid">
+            <label>Tenant Name <input name="tenantName" required></label>
+            <label>Tenant Phone <input name="tenantPhone" required></label>
+            <label>Property Address <input name="propertyAddress" required></label>
+            <label>Viewing Date <input name="viewingDate" type="date" required></label>
+            <label>Viewing Time <input name="viewingTime" type="time" required></label>
+            <label>Status
+              <select name="status"><option>Upcoming</option><option>Completed</option><option>Cancelled</option></select>
+            </label>
+            <label class="full">Notes <textarea name="notes"></textarea></label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Book Viewing</button>
+          <div class="notice" id="viewingNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="commission">
+        <div class="panel">
+          <h2>Commission Dashboard</h2>
+          <p class="hint">Agent commission is R100 for every room successfully marked as taken by admin.</p>
+          <div class="grid grid-4">
+            <div class="stat"><span>Today</span><strong id="commissionToday">R0</strong></div>
+            <div class="stat"><span>This Week</span><strong id="commissionWeek">R0</strong></div>
+            <div class="stat"><span>This Month</span><strong id="commissionMonth">R0</strong></div>
+            <div class="stat"><span>Lifetime</span><strong id="commissionLifetime">R0</strong></div>
+          </div>
+          <div class="actions" style="margin-top:14px">
+            <button class="btn btn-secondary">Download Payslips</button>
+            <button class="btn btn-secondary">Download Commission Statements</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="daily">
+        <form class="panel" id="dailyForm">
+          <h2>Daily Reports</h2>
+          <div class="form-grid">
+            <label>Report Date <input name="reportDate" type="date"></label>
+            <label>How many landlords visited? <input name="landlordsVisited" type="number" min="0"></label>
+            <label>How many properties found? <input name="propertiesFound" type="number" min="0"></label>
+            <label>How many registrations? <input name="registrations" type="number" min="0"></label>
+            <label>How many photos uploaded? <input name="photosUploaded" type="number" min="0"></label>
+            <label class="full">Challenges <textarea name="challenges"></textarea></label>
+            <label class="full">Plans for tomorrow <textarea name="plans"></textarea></label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Submit Report</button>
+          <div class="notice" id="dailyNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="performance">
+        <div class="panel">
+          <h2>Performance Dashboard</h2>
+          <svg class="chart" viewBox="0 0 720 220" role="img" aria-label="Performance line graph">
+            <polyline points="30,180 100,160 170,165 240,130 310,120 380,90 450,105 520,70 590,82 680,45" fill="none" stroke="#0d7b5d" stroke-width="5"/>
+            <line x1="30" y1="190" x2="690" y2="190" stroke="#dbe5df"/>
+            <line x1="30" y1="30" x2="30" y2="190" stroke="#dbe5df"/>
+          </svg>
+          <div class="grid grid-4" style="margin-top:14px">
+            <div class="stat"><span>Monthly Target</span><strong>20</strong></div>
+            <div class="stat"><span>Completion</span><strong>0%</strong></div>
+            <div class="stat"><span>Ranking</span><strong>#1</strong></div>
+            <div class="stat"><span>Badges</span><strong>0</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="chat">
+        <form class="panel" id="chatForm">
+          <h2>Messages</h2>
+          <label>Message Office / Manager / Support
+            <textarea name="message" required placeholder="Write your message, announcement reply, or support request"></textarea>
+          </label>
+          <br><button class="btn btn-primary" type="submit">Send Message</button>
+          <div class="notice" id="chatNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="notifications">
+        <div class="panel">
+          <h2>Announcements</h2>
+          <div class="list">
+            <div class="list-item"><strong>New Leads</strong><br><span class="hint">New tenant enquiries will appear here.</span></div>
+            <div class="list-item"><strong>Viewing Reminder</strong><br><span class="hint">Upcoming viewings and training reminders.</span></div>
+            <div class="list-item"><strong>Commission Paid</strong><br><span class="hint">Payment updates from the office.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="calendar">
+        <div class="panel">
+          <h2>Calendar</h2>
+          <div class="resource-grid">
+            <div class="resource"><strong>Upcoming Viewings</strong><span class="hint">Book viewings from the Viewings page.</span></div>
+            <div class="resource"><strong>Meetings</strong><span class="hint">Office meetings and field reviews.</span></div>
+            <div class="resource"><strong>Training</strong><span class="hint">Training sessions and deadlines.</span></div>
+            <div class="resource"><strong>Commission Dates</strong><span class="hint">Payment schedule reminders.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="referrals">
+        <div class="panel">
+          <h2>Referral System</h2>
+          <p>Invite new agents and track referral earnings.</p>
+          <label>Referral Link <input id="referralLink" readonly></label>
+          <br><button class="btn btn-secondary" id="copyReferralButton" type="button">Copy Referral Link</button>
+          <div class="grid grid-2" style="margin-top:14px">
+            <div class="stat"><span>Referral Earnings</span><strong>R0</strong></div>
+            <div class="stat"><span>Referral History</span><strong>0</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="support">
+        <form class="panel" id="supportForm">
+          <h2>Support</h2>
+          <div class="resource-grid">
+            <div class="resource"><strong>FAQs</strong><span class="hint">Common agent questions.</span></div>
+            <div class="resource"><strong>WhatsApp Support</strong><span class="hint">Use office WhatsApp for urgent help.</span></div>
+            <div class="resource"><strong>Email Support</strong><span class="hint">avukilerooms@gmail.com</span></div>
+          </div>
+          <br>
+          <label>Report Issue <textarea name="message" required></textarea></label>
+          <br><button class="btn btn-primary" type="submit">Send Support Ticket</button>
+          <div class="notice" id="supportNotice"></div>
+        </form>
+      </section>
+
+      <section class="section" id="settings">
+        <form class="panel" id="settingsForm">
+          <h2>Settings</h2>
+          <div class="form-grid">
+            <label>Current Password <input name="currentPassword" type="password" required placeholder="Current password"></label>
+            <label>New Password <input name="newPassword" type="password" required placeholder="New password"></label>
+            <label>Two-Factor Authentication
+              <select><option>Off</option><option>On</option></select>
+            </label>
+            <label>Notification Preferences
+              <select><option>All notifications</option><option>Important only</option></select>
+            </label>
+            <label>Language
+              <select><option>English</option><option>Zulu</option><option>Sotho</option></select>
+            </label>
+            <label class="full">Privacy <textarea placeholder="Privacy notes"></textarea></label>
+          </div>
+          <br><button class="btn btn-primary" type="submit">Change Password</button>
+          <div class="notice" id="settingsNotice"></div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const state = {
+      agentName: sessionStorage.getItem("vipAgentName") || "",
+      agentToken: sessionStorage.getItem("vipAgentToken") || "",
+      agent: JSON.parse(sessionStorage.getItem("vipAgentAccount") || "null"),
+      listings: []
+    };
+
+    const money = (value) => `R${Number(value || 0).toLocaleString("en-ZA")}`;
+    const qs = (selector, root = document) => root.querySelector(selector);
+    const qsa = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+    function showNotice(id, message) {
+      const el = qs(`#${id}`);
+      if (!el) return;
+      el.textContent = message;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 5500);
+    }
+
+    function setAgentName(name) {
+      state.agentName = name || "Agent";
+      sessionStorage.setItem("vipAgentName", state.agentName);
+      qsa("[data-agent-name]").forEach((el) => { el.textContent = state.agentName; });
+      qs("#referralLink").value = `${location.origin}/agent.html?ref=${encodeURIComponent(state.agentName)}`;
+    }
+
+    function switchView(view) {
+      qsa(".section").forEach((section) => section.classList.toggle("active", section.id === view));
+      qsa(".nav-btn[data-view]").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function formDataObject(form) {
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.agentName = state.agentName;
+      return data;
+    }
+
+    function fileNames(input) {
+      return input?.files ? [...input.files].map((file) => file.name) : [];
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function readImages(input, max = 5) {
+      const files = input?.files ? [...input.files].slice(0, max) : [];
+      return Promise.all(files.map(readFileAsDataURL));
+    }
+
+    async function readOneFile(input) {
+      const file = input?.files?.[0];
+      return file ? readFileAsDataURL(file) : "";
+    }
+
+    async function api(path, payload) {
+      const response = await fetch(path, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(state.agentToken ? { Authorization: `Bearer ${state.agentToken}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || data.message || "Request failed");
+      return data;
+    }
+
+    async function refreshSummary() {
+      try {
+        const response = await fetch("/api/agent/summary", {
+          headers: state.agentToken ? { Authorization: `Bearer ${state.agentToken}` } : {}
+        });
+        if (response.status === 401) throw new Error("Agent login required");
+        const data = await response.json();
+        const stats = data.stats || {};
+        state.listings = data.listings || [];
+        qs("#statProperties").textContent = stats.propertiesRegistered ?? state.listings.length;
+        qs("#statActive").textContent = stats.activeListings ?? 0;
+        qs("#statViewings").textContent = stats.viewingsBooked ?? 0;
+        qs("#statPlacements").textContent = stats.successfulPlacements ?? 0;
+        qs("#statEarned").textContent = money(stats.commissionEarned);
+        qs("#statPending").textContent = money(stats.commissionPending);
+        qs("#commissionToday").textContent = money(stats.commissionToday);
+        qs("#commissionWeek").textContent = money(stats.commissionWeek);
+        qs("#commissionMonth").textContent = money(stats.commissionMonth);
+        qs("#commissionLifetime").textContent = money(stats.commissionEarned);
+        renderListings();
+      } catch {
+        qs("#statProperties").textContent = state.listings.length;
+      }
+    }
+
+    function renderListings() {
+      const term = qs("#listingSearch").value.toLowerCase();
+      const list = state.listings.filter((item) => JSON.stringify(item).toLowerCase().includes(term));
+      qs("#listingList").innerHTML = list.length ? list.map((item) => `
+        <div class="list-item">
+          <strong>${item.propertyType || item.type || "Property"}</strong><br>
+          ${item.location || ""} ${item.address || ""}<br>
+          <span class="hint">Rent: ${item.amount || "Not stated"} | Status: ${item.listStatus || item.status || "Pending admin review"}</span>
+        </div>
+      `).join("") : `<div class="list-item"><strong>No local listings yet.</strong><br><span class="hint">Submit a property and it will appear here and in admin pending.</span></div>`;
+    }
+
+    qs("#loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const username = qs("#loginUsername").value.trim();
+        const password = qs("#loginPassword").value;
+        const data = await api("/api/agent/login", { username, password });
+        state.agentToken = data.token;
+        state.agent = data.agent;
+        sessionStorage.setItem("vipAgentToken", state.agentToken);
+        sessionStorage.setItem("vipAgentAccount", JSON.stringify(state.agent));
+        setAgentName(state.agent.fullName || state.agent.username);
+        qs("#loginScreen").hidden = true;
+        qs("#portal").hidden = false;
+        qs("#agentTopActions").hidden = false;
+        refreshSummary();
+        renderListings();
+      } catch (error) {
+        alert(error.message || "Incorrect agent login.");
+      }
+    });
+
+    qsa(".nav-btn[data-view]").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
+    qsa("[data-go]").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.go)));
+
+    qs("#logoutButton").addEventListener("click", () => {
+      sessionStorage.removeItem("vipAgentName");
+      sessionStorage.removeItem("vipAgentToken");
+      sessionStorage.removeItem("vipAgentAccount");
+      location.reload();
+    });
+
+    qs("#profileForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = formDataObject(form);
+      payload.profilePicture = await readOneFile(form.profilePicture);
+      payload.documents = fileNames(form.documents);
+      await api("/api/agent/profile", payload);
+      showNotice("profileNotice", "Agent profile saved.");
+    });
+
+    qs("#propertyForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = formDataObject(form);
+      payload.images = await readImages(form.images, 5);
+      payload.video = await readOneFile(form.video);
+      payload.documents = fileNames(form.documents);
+      await api("/api/agent/property", payload);
+      refreshSummary();
+      showNotice("propertyNotice", "Property sent to admin pending review.");
+      form.reset();
+    });
+
+    qs("#landlordForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = formDataObject(form);
+      payload.documents = fileNames(form.documents);
+      await api("/api/agent/landlord", payload);
+      showNotice("landlordNotice", "Landlord registration saved.");
+      form.reset();
+    });
+
+    qs("#leadForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api("/api/agent/lead", formDataObject(event.currentTarget));
+      showNotice("leadNotice", "Tenant enquiry saved.");
+      event.currentTarget.reset();
+    });
+
+    qs("#viewingForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api("/api/agent/viewing", formDataObject(event.currentTarget));
+      showNotice("viewingNotice", "Viewing booked.");
+      event.currentTarget.reset();
+      refreshSummary();
+    });
+
+    qs("#dailyForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api("/api/agent/report", formDataObject(event.currentTarget));
+      showNotice("dailyNotice", "Daily activity report submitted.");
+      event.currentTarget.reset();
+    });
+
+    qs("#chatForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api("/api/agent/support", { ...formDataObject(event.currentTarget), type: "Internal Chat" });
+      showNotice("chatNotice", "Message sent to office.");
+      event.currentTarget.reset();
+    });
+
+    qs("#supportForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api("/api/agent/support", { ...formDataObject(event.currentTarget), type: "Support Ticket" });
+      showNotice("supportNotice", "Support ticket sent.");
+      event.currentTarget.reset();
+    });
+
+    qs("#settingsForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = formDataObject(event.currentTarget);
+      await api("/api/agent/change-password", payload);
+      showNotice("settingsNotice", "Password changed successfully.");
+      event.currentTarget.reset();
+    });
+
+    qs("#listingSearch").addEventListener("input", renderListings);
+    qs("#copyReferralButton").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(qs("#referralLink").value).catch(() => {});
+      alert("Referral link copied.");
+    });
+
+    qs("#todayText").textContent = new Date().toLocaleDateString("en-ZA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    if (state.agentToken && state.agent) {
+      setAgentName(state.agent.fullName || state.agent.username || state.agentName);
+      qs("#loginScreen").hidden = true;
+      qs("#portal").hidden = false;
+      qs("#agentTopActions").hidden = false;
+      refreshSummary();
+      renderListings();
+    } else {
+      window.location.href = "agent.html";
+    }
+  </script>
+</body>
+</html>
