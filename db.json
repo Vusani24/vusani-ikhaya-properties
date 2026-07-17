@@ -1,0 +1,35 @@
+{
+  "rooms": {
+    "pending": [],
+    "approved": [],
+    "taken": [],
+    "declined": [],
+    "removed": []
+  },
+  "reviews": {
+    "pending": [],
+    "approved": [],
+    "declined": []
+  },
+  "reports": {
+    "pending": [],
+    "approved": [],
+    "declined": []
+  },
+  "transports": {
+    "pending": [],
+    "approved": [],
+    "declined": [],
+    "removed": []
+  },
+  "agents": {
+    "accounts": [],
+    "profiles": [],
+    "landlords": [],
+    "reports": [],
+    "leads": [],
+    "viewings": [],
+    "support": []
+  },
+  "receipts": []
+}
